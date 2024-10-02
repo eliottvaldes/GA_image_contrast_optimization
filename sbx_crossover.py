@@ -27,9 +27,10 @@ def sbx(parents: np.ndarray, limits: np.ndarray, sbx_prob: float, sbx_dispersion
                 var1 = parents[i][j]
                 var2 = parents[i+1][j]
                 
-                # avoid errors => if var1=var2, then the children will be the same as the parents
+                # avoid errors(avoid division by zero)
                 if var1 == var2:
-                    var2 += 0.0001
+                    continue                    
+                              
                 # get the lower and upper bounds of the variable                    
                 lb = limits[j][0]
                 ub = limits[j][1]
@@ -57,21 +58,30 @@ if __name__ == '__main__':
     #GENERAL CONFIGURATIONS
     population_size = 2 #np -> Size of the population
     variables = 2 #nVar -> Number of variables of each individual
-    limits = np.array([[1, 3], #limits var 1 -> [Lower, Upper]
-                    [-1, 5]]) #limits var 2 -> [Lower, Upper]
+    limits = np.array([[0, 1], #limits var 1 -> [Lower, Upper]
+                    [0, 10]]) #limits var 2 -> [Lower, Upper]
     #SBX CONFIGURATIONS
-    sbx_prob = 0.9 #pc -> Probability of crossover
-    sbx_dispersion_param = 2 #nc -> Distribution index (ideal 1 or 2)
+    sbx_prob = 0.7 #pc -> Probability of crossover
+    sbx_dispersion_param = 7 #nc -> Distribution index (ideal 1 or 2)
 
     # define the population. initializa with zeros
     population = np.zeros((population_size, variables))
 
-    # define a high sbx_prob
+    # define a high sbx_prob for testing
     sbx_prob = 10
     # define a popilation 
     population = np.array([
-        [2.3, 4.5], 
-        [1.4, -0.2]])
+        [0.98497561, 8.64246315],
+        [0.98497561, 7.64246315],
+        [0.99754764, 9.16562837],
+        [0.99801123, 9.19327856],
+        [0.96851182, 8.52015122],
+        [0.99995746, 9.5404104 ],
+        [0.9974115 , 9.16564782],
+        [0.99803069, 9.19314243],
+        [0.99490194, 8.61926468],
+        [0.99996816, 9.64940138]
+ ])
     
     # *hardcode the param u=0.95 to get the same results as the class example
 
