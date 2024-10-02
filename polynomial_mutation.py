@@ -5,11 +5,11 @@ import numpy as np
 @context: Used in continuous GA. Add variability to the individuals in the population
 @param population: np.ndarray -> All population to be mutated -> F.E: [2.3, 4.5]
 @param limits: np.ndarray -> Limits of the variables -> F.E: [[1, 3], [-1, 5]]
-@param mutation_probability: (Pm) int -> Probability of mutation (between 0 and 1)
+@param mutation_probability: (Pm) float -> Probability of mutation (between 0 and 1)
 @param distribution_index: (nm) int -> Distribution index ( ideal 20-100)
 @return: None -> it changes the population using memory reference
 """
-def apply_polinomial_mutation(population: np.ndarray, limits: np.ndarray, mutation_probability: int, distribution_index: int) -> None:
+def apply_polinomial_mutation(population: np.ndarray, limits: np.ndarray, mutation_probability: float, distribution_index: int) -> None:
     n_population, n_var = population.shape
     # loop over the population
     for i in range(n_population):
