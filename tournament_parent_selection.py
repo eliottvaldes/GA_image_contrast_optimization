@@ -1,5 +1,5 @@
 import numpy as np
-
+import secrets
 
 """
 @brief: Selects parents using tournament selection for crossover.
@@ -8,15 +8,32 @@ import numpy as np
 @args: num_parents (int): The number of parents to select for crossover.
 @return: np.ndarray: The selected parents for crossover.
 """
-def tournament_selection(population: np.ndarray, aptitude: np.ndarray) -> np.ndarray:    
-    num_parents, num_variables = population.shape    
-        
+def tournament_selection_maximize(population: np.ndarray, aptitude: np.ndarray) -> np.ndarray:    
+    num_parents, num_variables = population.shape            
     parents = np.zeros((num_parents, num_variables))    
 
     for i in range(num_parents):
         # Select two random individuals
-        idx1 = np.random.randint(num_parents)
-        idx2 = np.random.randint(num_parents)
+        idx1 = secrets.randbelow(num_parents)
+        idx2 = secrets.randbelow(num_parents)
+        # Compare the aptitude of the two individuals
+        if aptitude[idx1] > aptitude[idx2]:
+            parents[i] = population[idx1]
+        else:
+            parents[i] = population[idx2]
+    
+    # Return the selected parents
+    return parents
+
+
+def tournament_selection_minimize(population: np.ndarray, aptitude: np.ndarray) -> np.ndarray:    
+    num_parents, num_variables = population.shape            
+    parents = np.zeros((num_parents, num_variables))    
+
+    for i in range(num_parents):
+        # Select two random individuals
+        idx1 = secrets.randbelow(num_parents)
+        idx2 = secrets.randbelow(num_parents)
         # Compare the aptitude of the two individuals
         if aptitude[idx1] < aptitude[idx2]:
             parents[i] = population[idx1]
@@ -28,23 +45,25 @@ def tournament_selection(population: np.ndarray, aptitude: np.ndarray) -> np.nda
 
 if __name__ == '__main__':
     # Example usage
-    population_size = 5  # Size of the population
-    variables = 2        # Number of variables per individual
-    limits = np.array([[1, 3],   # Limits for variable 1
-                    [-1, 5]]) # Limits for variable 2
+    population = np.array([
+        [0.06545813, 2.47276573],
+        [0.46758506, 4.11341923],
+        [0.68228584, 3.21668505],
+        [0.58070302, 0.94447639],
+        [0.17867484, 1.70116833],
+        [0.23853537, 2.06979372],
+        [0.10239358, 0.91061268],
+        [0.76482242, 5.87768613],
+        [0.29528902, 4.06142647],
+        [0.15634745, 6.05773729],
+    ])
 
-    initial_population = generate_initial_population(population_size, variables, limits)
-    print(f'Population_generated: \n{initial_population}\n')
-    
-    # evaluate the population
-    aptitude = evaluate_population(initial_population, langermann_function)
-    # get the index of the minimum aptitude - BEST INDIVIDUAL
-    best_index = np.argmin(aptitude)
-    
-    print(f'Aptitude: {aptitude}')
-    print(f'Best index: {best_index}')
-    print(f'Best individual: {initial_population[best_index]}')
+    aptitude = np.array([
+        7.60878204, 7.51376325, 7.46352892, 7.59441195, 7.60498951,
+        7.60841625, 7.60841625, 7.38423158, 7.56316415, 7.58626385, 
+    ])
+
     
     # Seleccionar padres usando el torneo    
-    selected_parents = tournament_selection(initial_population, aptitude)
+    selected_parents = tournament_selection_maximize(population, aptitude)
     print(f'\nPadres seleccionados: \n{selected_parents}')
