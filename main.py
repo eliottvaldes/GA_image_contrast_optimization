@@ -6,7 +6,7 @@ from image_helpers import read_image, show_results, plot_comparison
 from calculate_aptitude import evaluate_population, image_objective_function, image_objective_function_spatial_entropy, calculate_shannon_entropy, calculate_spatial_entropy, apply_sigmoid
 from tournament_parent_selection import tournament_selection_maximize
 from sbx_crossover import sbx
-from polynomial_mutation import apply_polinomial_mutation
+from polynomial_mutation import apply_polynomial_mutation
 
 
 
@@ -30,7 +30,7 @@ def solve_GA_contrast_optimization(generations: int):
         sbx(population, limits, sbx_prob, sbx_dispersion_param)
         
         # 5. Apply Polynomial Mutation.
-        apply_polinomial_mutation(population, limits, mutation_probability_param, distribution_index_param)
+        apply_polynomial_mutation(population, limits, mutation_probability_param, distribution_index_param)
         
         # 6. Calculate aptitude after mutation and crossover.
         aptitude_af = evaluate_population(population, image_objective_function, image.copy())
@@ -74,7 +74,7 @@ sbx_prob = 0.8 #pc -> Probability of crossover
 sbx_dispersion_param = 4 #nc -> Distribution index (ideal 1 or 2)    
 
 # ===============================================================
-# POLINOMIAL MUTATION CONFIGURATIONS
+# POLYNOMIAL MUTATION CONFIGURATIONS
 # ===============================================================
 mutation_probability_param = 0.6 #r -> Probability of mutation
 distribution_index_param = 95 #nm -> Distribution index ( ideal 20-100)        

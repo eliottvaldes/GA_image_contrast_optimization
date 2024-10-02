@@ -9,7 +9,7 @@ import numpy as np
 @param distribution_index: (nm) int -> Distribution index ( ideal 20-100)
 @return: None -> it changes the population using memory reference
 """
-def apply_polinomial_mutation(population: np.ndarray, limits: np.ndarray, mutation_probability: float, distribution_index: int) -> None:
+def apply_polynomial_mutation(population: np.ndarray, limits: np.ndarray, mutation_probability: float, distribution_index: int) -> None:
     n_population, n_var = population.shape
     # loop over the population
     for i in range(n_population):
@@ -46,7 +46,7 @@ if __name__ == '__main__':
                         [-1, 5]]) #limits var 2 -> [Lower, Upper]
     population = np.array([[1.127, -0.588]]) # just one individual for test
 
-    # POLINOMIAL MUTATION CONFIGURATIONS
+    # POLYNOMIAL MUTATION CONFIGURATIONS
     mutation_probability_param = 10 #r -> Probability of mutation
     distribution_index_param = 20 #nm -> Distribution index ( ideal 20-100)
     
@@ -58,9 +58,9 @@ if __name__ == '__main__':
     print(f'Mutation Probability: {mutation_probability_param}')
     print(f'Distribution Index: {distribution_index_param}')
     print(f'{"*"*50}')
-    print(f'Applying Polinomial Mutation...')
+    print(f'Applying polynomial Mutation...')
     print(f'{"*"*50}')
     # apply the mutation
-    apply_polinomial_mutation(population, limits, mutation_probability_param, distribution_index_param)    
+    apply_polynomial_mutation(population, limits, mutation_probability_param, distribution_index_param)    
     print(f'Population after mutation: \n{population}')
     
