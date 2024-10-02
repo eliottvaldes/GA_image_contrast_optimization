@@ -4,7 +4,7 @@ import numpy as np
 from generate_population import generate_initial_population
 from image_helpers import read_image, show_results, plot_comparison
 from calculate_aptitude import evaluate_population, image_objective_function, calculate_shannon_entropy, apply_sigmoid
-from tournament_parent_selection import tournament_selection
+from tournament_parent_selection import tournament_selection_maximize
 from sbx_crossover import sbx
 from polynomial_mutation import apply_polinomial_mutation
 
@@ -17,38 +17,31 @@ def solve_GA_contrast_optimization(generations: int):
      
     # iterar las generaciones
     for generation in range(generations):
-        # 3. get the aptitude vector
-        aptitude = evaluate_population(population, image_objective_function, image.copy())
-        #print(f'2. Calculate aptitudes.')        
         
-        # save the best individual in a variable use a copy
-        best_individual = population[np.argmax(aptitude)].copy()
-        #print(f'3. Best individual (values): {best_individual}')
+        print(f'Generation {generation+1}/{generations}')
         
-        # select the parents using tournament selection
-        population = tournament_selection(population.copy(), aptitude)
+        # 1. Calculate aptitudes.')        
+        aptitude = evaluate_population(population.copy(), image_objective_function, image.copy())
+        # 2. Get the best individual of the current population
+        best_individual_population = population[np.argmax(aptitude)].copy()        
+                
+        # 3. Select the parents using tournament selection        
+        population = tournament_selection_maximize(population.copy(), aptitude)
         
-        # apply sbx crossover
+        # 4. SBX crossover
         sbx(population, limits, sbx_prob, sbx_dispersion_param)
-        #print(f'4. SBX crossover.')
         
-        # apply mutation
+        # 5. Apply Polynomial Mutation
         apply_polinomial_mutation(population, limits, mutation_probability_param, distribution_index_param)
-        #print(f'5. Mutation.')
         
-        # calculate the new aptitude vector for the population after crossover
-        aptitude = evaluate_population(population, image_objective_function, image.copy())
-        #print(f'6. Calculate aptitude after mutation')        
-        
-        # get the worst individual index = min(aptitude)
-        worst_after_crossover = np.argmin(aptitude)
-        #print(f'7. Worst individual (index): {worst_after_crossover}')
-        
-        # ELITISM SUSTITUTION
-        # replace the worst individual after crossover (children) with the best individual before crossover (parent)
-        population[worst_after_crossover] = best_individual
-        #print(f'8. Apply elitism: \n\n')
-
+        # 6. Calculate aptitude after mutation and crossover
+        aptitude_af = evaluate_population(population, image_objective_function, image.copy())
+        # 6.1 Get the worst individual index of the population (child population)
+        worst_aptitude_index = np.argmin(aptitude_af)
+                
+        # 7. ELITISM - replace the worst individual in the child population with the best individual from the previous generation
+        population[worst_aptitude_index] = best_individual_population.copy()
+               
 
     # get the final aptitude vector
     aptitude = evaluate_population(population, image_objective_function, image.copy())
@@ -63,11 +56,11 @@ def solve_GA_contrast_optimization(generations: int):
 #GENERAL CONFIGURATIONS
 # ===============================================================
 # => Image configurations
-img_path = 'assets/4360.png'
-img_height = 500
+img_path = 'assets/kodim23.png'
+img_height = 700
 # => Genetic Algorithm configurations
-population_size = 30 #np -> Size of the population
-generations = 200 #ng -> Number of generations
+population_size = 50 #np -> Size of the population
+generations = 40 #ng -> Number of generations
 variables = 2 #nVar -> Number of variables of each individual
 limits = np.array([[0, 1],   # Limits for variable 1
                 [0, 10]]) # Limits for variable 2
@@ -75,14 +68,14 @@ limits = np.array([[0, 1],   # Limits for variable 1
 # ===============================================================
 #SBX CONFIGURATIONS
 # ===============================================================
-sbx_prob = 0.9 #pc -> Probability of crossover
-sbx_dispersion_param = 2 #nc -> Distribution index (ideal 1 or 2)    
+sbx_prob = 0.8 #pc -> Probability of crossover
+sbx_dispersion_param = 4 #nc -> Distribution index (ideal 1 or 2)    
 
 # ===============================================================
 # POLINOMIAL MUTATION CONFIGURATIONS
 # ===============================================================
-mutation_probability_param = 0.7 #r -> Probability of mutation
-distribution_index_param = 50 #nm -> Distribution index ( ideal 20-100)        
+mutation_probability_param = 0.6 #r -> Probability of mutation
+distribution_index_param = 95 #nm -> Distribution index ( ideal 20-100)        
 
 # prepare the image
 image = read_image(img_path, img_height)
