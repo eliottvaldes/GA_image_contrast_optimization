@@ -2,8 +2,8 @@
 import numpy as np
 # import the necessary functions
 from generate_population import generate_initial_population
-from image_helpers import read_image, show_results
-from calculate_aptitude import evaluate_population, image_objective_function, calculate_shannon_entropy
+from image_helpers import read_image, show_results, plot_comparison
+from calculate_aptitude import evaluate_population, image_objective_function, calculate_shannon_entropy, apply_sigmoid
 from tournament_parent_selection import tournament_selection
 from sbx_crossover import sbx
 from polynomial_mutation import apply_polinomial_mutation
@@ -106,7 +106,13 @@ print(f'Mutation Probability: {mutation_probability_param}')
 print(f'Distribution Index (nm): {distribution_index_param}')
     
 result = solve_GA_contrast_optimization(generations)
+
+# apply the sigmoid to the image with the best individual and then calculate the entropy
 print(f'\tIndividual: {result["individual"]}, Aptitude = {result["aptitude"]}')
+image_improved = apply_sigmoid(image.copy(), result['individual'][0], result['individual'][1])
+imp_entropy = calculate_shannon_entropy(image_improved)
+# show the results in a plot comparison (original image vs best image)
+plot_comparison(image, image_improved, original_entropy, imp_entropy, result['individual'][0], result['individual'][1])
 
 """
 # ===============================================================
