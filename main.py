@@ -25,6 +25,9 @@ def solve_GA_contrast_optimization(generations: int):
         best_individual = population[np.argmax(aptitude)].copy()
         #print(f'3. Best individual (values): {best_individual}')
         
+        # select the parents using tournament selection
+        population = tournament_selection(population.copy(), aptitude)
+        
         # apply sbx crossover
         sbx(population, limits, sbx_prob, sbx_dispersion_param)
         #print(f'4. SBX crossover.')
