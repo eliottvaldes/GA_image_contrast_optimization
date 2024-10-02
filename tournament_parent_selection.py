@@ -11,10 +11,6 @@ import numpy as np
 def tournament_selection(population: np.ndarray, aptitude: np.ndarray) -> np.ndarray:    
     num_parents, num_variables = population.shape    
         
-    print(f'Shape Population: {population.shape}')
-    print(f'Num parents: {num_parents}')
-    print(f'Num individuals: {num_variables}')
-    
     parents = np.zeros((num_parents, num_variables))    
 
     for i in range(num_parents):
