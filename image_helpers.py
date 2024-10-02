@@ -25,6 +25,26 @@ def show_results(img, description):
     plt.title(description)
     plt.show()
 
+
+def plot_comparison(image, best_image, original_entropy, best_image_entropy, best_alfa, best_beta):
+    best_image = (best_image * 255).astype(np.uint8)
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+    # Original image
+    axes[0].imshow(image, cmap='gray')
+    axes[0].set_title(f'Original Image\nEntropy: {original_entropy}')
+    axes[0].axis('off')
+
+    # Best image
+    axes[1].imshow(best_image, cmap='gray')
+    axes[1].set_title(f'Best Image\nEntropy: {best_image_entropy}\n(alpha={best_alfa}, beta={best_beta})')
+    axes[1].axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
     image_path = './files/4360.png'
     image_height = 800
