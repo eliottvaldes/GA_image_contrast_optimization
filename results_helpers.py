@@ -1,8 +1,3 @@
-import os
-from datetime import datetime
-import pandas as pd
-
-
 """
 @brief: Save the results in a csv file
 @description: This function saves the results in a csv file. If the file already exists, it appends the new row to the file.
@@ -12,6 +7,10 @@ import pandas as pd
 @return: None
 """
 def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
+    import os
+    from datetime import datetime
+    import pandas as pd
+
     try:
         
         # FORMAT THE RESULTS
@@ -22,7 +21,7 @@ def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
         results.update(ga_config)
         results['limits'] = str(list(results['limits']))
         results['image_height'] = results['image'].shape[0]
-        results.pop('image')                
+        results.pop('image')                    
         results['objetive_function'] = results['objetive_function'].__name__
         results['parent_selection_optimization'] = results['parent_selection_optimization'].__name__
     
@@ -53,6 +52,71 @@ def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
     except Exception as e:
         print(f"Error saving the results: {e}")
         raise e
+
+
+
+# function to show the results.
+"""
+@brief: Plot the results of the genetic algorithm optimization
+@description: This function plots the original image and the improved image using the best individual found by the genetic algorithm.
+@param: img_original: np.ndarray - original image
+@param: ga_result: dict - dictionary with the results of the genetic algorithm
+@param: tmp_objetive_function: str - name of the objective function used in the genetic algorithm
+@return: None
+"""
+def plot_results(img_original, ga_result: dict, tmp_objetive_function: str) -> None:
+    import matplotlib.pyplot as plt
+    from calculate_aptitude import apply_sigmoid, calculate_shannon_entropy, calculate_spatial_entropy
+    import numpy as np
+
+    # ---------------------------------------------------------------
+    # CALCULATE THE ENTROPY OF THE ORIGINAL IMAGE
+    # ---------------------------------------------------------------
+    # calculate the entropy of the original image    
+    original_entropy = 0.00
+    if tmp_objetive_function == 'spatial_entropy':
+        original_entropy = calculate_spatial_entropy(img_original)
+    else:
+        original_entropy = calculate_shannon_entropy(img_original)
+        
+    
+    # ---------------------------------------------------------------
+    # IMPROVE THE IMAGE
+    # ---------------------------------------------------------------
+    # get the improved variables
+    best_alfa, best_beta = ga_result['individual']
+    # generate a copy of the image
+    img_improved = img_original.copy()
+    # apply the sigmoid function
+    img_improved = apply_sigmoid(img_improved, best_alfa, best_beta)
+    # calculate the entropy of the improved image
+    best_image_entropy = 0.00
+    if tmp_objetive_function == 'spatial_entropy':
+        best_image_entropy = calculate_spatial_entropy(img_improved)
+    else:
+        best_image_entropy = calculate_shannon_entropy(img_improved)
+        
+    # ---------------------------------------------------------------
+    # PLOT THE RESULTS
+    # ---------------------------------------------------------------
+    img_improved = (img_improved * 255).astype(np.uint8)
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+    # Original image
+    axes[0].imshow(img_original, cmap='gray')
+    axes[0].set_title(f'Original Image\nEntropy: {original_entropy}')
+    axes[0].axis('off')
+
+    # Best image
+    axes[1].imshow(img_improved, cmap='gray')
+    axes[1].set_title(f'Best Image\nEntropy: {best_image_entropy}\n(alpha={best_alfa}, beta={best_beta})')
+    axes[1].axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
     
 
 if __name__ == "__main__":
@@ -62,7 +126,10 @@ if __name__ == "__main__":
         
     file_result_path= './assets/results/'    
     result={'individual': [0.9087878718730255, 6.473717473195805], 'aptitude': 4.97570161859357}
-    ga_config={'population_size': 10, 'generations': 1, 'variables': 2, 'limits': np.array([[ 0,  1],[ 0, 10]]), 'sbx_prob': 0.8, 'sbx_dispersion_param': 3, 'mutation_probability_param': 0.7, 'distribution_index_param': 95, 'objetive_function': 'spatial_entropy', 'parent_selection_optimization': 'maximize', 'image': np.array([1,2,3,4,5]), 'image_path': 'assets/microphotographs-of-pulmonary-blood-vessels.png'}
-    
+    ga_config={'population_size': 10, 'generations': 1, 'variables': 2, 'limits': np.array([[ 0,  1],[ 0, 10]]), 'sbx_prob': 0.8, 'sbx_dispersion_param': 3, 'mutation_probability_param': 0.7, 'distribution_index_param': 95, 'objetive_function': "<function obj_func_spatial_entropy at 0x79fb19c38400>", 'parent_selection_optimization': "<function tournament_selection_maximize at 0x79fb19c384a0>", 'image': np.array([1,2,3,4,5]), 'image_path': 'assets/microphotographs-of-pulmonary-blood-vessels.png'}        
     # save the results
     save_results(result, ga_config, file_result_path)
+    
+    # plot the results
+    img_original = np.random.rand(400, 400, 3)
+    plot_results(img_original, result, 'spatial_entropy')
