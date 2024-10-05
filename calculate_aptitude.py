@@ -56,7 +56,7 @@ def calculate_spatial_entropy(img: np.ndarray) -> float:
     return -np.sum(probabilities * np.log2(probabilities))
 
 
-def obj_func_shannon_spatial_entropy(individual: np.ndarray, image: np.ndarray) -> float:
+def obj_func_spatial_entropy(individual: np.ndarray, image: np.ndarray) -> float:
     alpha, delta = individual
     sigmoid_image = apply_sigmoid(image, alpha, delta)
     return calculate_spatial_entropy(sigmoid_image)
