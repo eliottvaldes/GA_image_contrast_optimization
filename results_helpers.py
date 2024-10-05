@@ -22,8 +22,10 @@ def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
         results['limits'] = str(list(results['limits']))
         results['image_height'] = results['image'].shape[0]
         results.pop('image')                    
-        results['objetive_function'] = results['objetive_function'].__name__
-        results['parent_selection_optimization'] = results['parent_selection_optimization'].__name__
+        if hasattr(results['objetive_function'], '__name__'):
+            results['objetive_function'] = results['objetive_function'].__name__
+        if hasattr(results['parent_selection_optimization'], '__name__'):
+            results['parent_selection_optimization'] = results['parent_selection_optimization'].__name__
     
         # SAVE THE RESULTS
         # Create the folder if it doesn't exist
@@ -126,7 +128,7 @@ if __name__ == "__main__":
         
     file_result_path= './assets/results/'    
     result={'individual': [0.9087878718730255, 6.473717473195805], 'aptitude': 4.97570161859357}
-    ga_config={'population_size': 10, 'generations': 1, 'variables': 2, 'limits': np.array([[ 0,  1],[ 0, 10]]), 'sbx_prob': 0.8, 'sbx_dispersion_param': 3, 'mutation_probability_param': 0.7, 'distribution_index_param': 95, 'objetive_function': "<function obj_func_spatial_entropy at 0x79fb19c38400>", 'parent_selection_optimization': "<function tournament_selection_maximize at 0x79fb19c384a0>", 'image': np.array([1,2,3,4,5]), 'image_path': 'assets/microphotographs-of-pulmonary-blood-vessels.png'}        
+    ga_config={'population_size': 10, 'generations': 1, 'variables': 2, 'limits': np.array([[ 0,  1],[ 0, 10]]), 'sbx_prob': 0.8, 'sbx_dispersion_param': 3, 'mutation_probability_param': 0.7, 'distribution_index_param': 95, 'objetive_function': "spatial_entropy", 'parent_selection_optimization': "maximaze", 'image': np.array([1,2,3,4,5]), 'image_path': 'assets/microphotographs-of-pulmonary-blood-vessels.png'}        
     # save the results
     save_results(result, ga_config, file_result_path)
     
