@@ -76,7 +76,7 @@ def plot_results(img_original, ga_result: dict, tmp_objetive_function: str) -> N
     # ---------------------------------------------------------------
     # calculate the entropy of the original image    
     original_entropy = 0.00
-    if tmp_objetive_function == 'spatial_entropy':
+    if tmp_objetive_function == 'obj_func_spatial_entropy':
         original_entropy = calculate_spatial_entropy(img_original)
     else:
         original_entropy = calculate_shannon_entropy(img_original)
@@ -93,7 +93,7 @@ def plot_results(img_original, ga_result: dict, tmp_objetive_function: str) -> N
     img_improved = apply_sigmoid(img_improved, best_alfa, best_beta)
     # calculate the entropy of the improved image
     best_image_entropy = 0.00
-    if tmp_objetive_function == 'spatial_entropy':
+    if tmp_objetive_function == 'obj_func_spatial_entropy':
         best_image_entropy = calculate_spatial_entropy(img_improved)
     else:
         best_image_entropy = calculate_shannon_entropy(img_improved)
