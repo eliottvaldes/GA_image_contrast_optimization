@@ -22,7 +22,9 @@ def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
         results.update(ga_config)
         results['limits'] = str(list(results['limits']))
         results['image_height'] = results['image'].shape[0]
-        results.pop('image')
+        results.pop('image')                
+        results['objetive_function'] = results['objetive_function'].__name__
+        results['parent_selection_optimization'] = results['parent_selection_optimization'].__name__
     
         # SAVE THE RESULTS
         # Create the folder if it doesn't exist
