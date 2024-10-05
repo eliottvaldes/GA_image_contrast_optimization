@@ -23,12 +23,16 @@ def solve_GA_contrast_optimization(ga_config: dict):
     variables = ga_config.get('variables', 2)
     limits = ga_config.get('limits', np.array([[0, 1], [0, 10]]))
     sbx_prob = ga_config.get('sbx_prob', 0.8)
-    sbx_dispersion_param = ga_config.get('sbx_dispersion_param', 2)
+    sbx_dispersion_param = ga_config.get('sbx_dispersion_param', 3)
     mutation_probability_param = ga_config.get('mutation_probability_param', 0.7)
     distribution_index_param = ga_config.get('distribution_index_param', 95)
     objetive_function = ga_config.get('objetive_function', obj_func_shannon_entropy)    
     parent_selection_optimization = ga_config.get('parent_selection_optimization', tournament_selection_maximize)
     image = ga_config.get('image', None)
+    
+    # Dynamic configurations
+    # Define the increment_rate for the sbx_dispersion_param. It's calculated based on the number of generations+(population_size/variables**variables). Max value of sbx_dispersion_param is 20.
+    increment_rate = (20 - sbx_dispersion_param) / (generations+(population_size/variables**variables)) if sbx_dispersion_param < 20 else 0
         
     # ---------------------------------------------------------------
     # Start the Genetic Algorithm
@@ -60,6 +64,9 @@ def solve_GA_contrast_optimization(ga_config: dict):
                 
         # 7. ELITISM - replace the worst individual in the child population with the best individual from the previous generation.
         population[worst_aptitude_index] = best_individual_population.copy()
+        
+        # EXTRA: increment the sbx_dispersion_param if it is less than 20.
+        sbx_dispersion_param += increment_rate if sbx_dispersion_param < 20 else 0
                
 
     # get the final aptitude vector
@@ -93,7 +100,7 @@ if __name__ == '__main__':
         'variables': 2,
         'limits': np.array([[0, 1], [0, 10]]),
         'sbx_prob': 0.8,
-        'sbx_dispersion_param': 2,
+        'sbx_dispersion_param': 3,
         'mutation_probability_param': 0.7,
         'distribution_index_param': 95,
         'objetive_function': obj_func_shannon_entropy if ob_config == 'shannon_entropy' else obj_func_shannon_spatial_entropy,
