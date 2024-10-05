@@ -6,19 +6,32 @@ import pandas as pd
 """
 @brief: Save the results in a csv file
 @description: This function saves the results in a csv file. If the file already exists, it appends the new row to the file.
-@param: results (dict): The object with the results to save.
-@param: folder_path (str): The path where the file will be saved.
+@param: ga_result: dict - dictionary with the results of the genetic algorithm
+@param: ga_config: dict - dictionary with the configuration of the genetic algorithm
+@param: folder_path: str - path to save the results
 @return: None
 """
-def save_results(results: dict, folder_path: str) -> None:
+def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
     try:
+        
+        # FORMAT THE RESULTS
+        results = {}
+        for i, value in enumerate(ga_result['individual']):
+            results[f'individual_variable_{i+1}'] = value
+        results['aptitude'] = ga_result['aptitude']
+        results.update(ga_config)
+        results['limits'] = str(list(results['limits']))
+        results['image_height'] = results['image'].shape[0]
+        results.pop('image')
+    
+        # SAVE THE RESULTS
         # Create the folder if it doesn't exist
         folder = os.path.dirname(folder_path)
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        # define the file name using the image name or the current date and time
-        file_name = results.get('image').split('/')[-1] if results.get('image') else datetime.now().strftime("%Y%m%d_%H%M%S")
+        # define the file name using the image_path name or the current date and time
+        file_name = results.get('image_path').split('/')[-1] if results.get('image_path') else datetime.now().strftime("%Y%m%d_%H%M%S")
         #remove the file extension
         file_name = file_name.split('.')[0]
         
@@ -42,9 +55,12 @@ def save_results(results: dict, folder_path: str) -> None:
 
 if __name__ == "__main__":
     
-    # create the object with the results 
-    ga_log= {'individual_variable_1': 0.9565342695753656, 'individual_variable_2': 9.965263017153724, 'aptitude': 4.982804479327174, 'population_size': 10, 'generations': 1, 'variables': 2, 'limits': '[array([0, 1]), array([ 0, 10])]', 'sbx_prob': 0.8, 'sbx_dispersion_param': 3, 'mutation_probability_param': 0.7, 'distribution_index_param': 95, 'objetive_function': 'obj_func_shannon_spatial_entropy', 'parent_selection_optimization': 'tournament_selection_maximize', 'image': 'assets/microphotographs-of-pulmonary-blood-vessels.png', 'image_height': 384}
-    file_result_path= './assets/results/'
+    # configuration for local test
+    import numpy as np
+        
+    file_result_path= './assets/results/'    
+    result={'individual': [0.9087878718730255, 6.473717473195805], 'aptitude': 4.97570161859357}
+    ga_config={'population_size': 10, 'generations': 1, 'variables': 2, 'limits': np.array([[ 0,  1],[ 0, 10]]), 'sbx_prob': 0.8, 'sbx_dispersion_param': 3, 'mutation_probability_param': 0.7, 'distribution_index_param': 95, 'objetive_function': 'spatial_entropy', 'parent_selection_optimization': 'maximize', 'image': np.array([1,2,3,4,5]), 'image_path': 'assets/microphotographs-of-pulmonary-blood-vessels.png'}
     
     # save the results
-    save_results(ga_log, file_result_path)
+    save_results(result, ga_config, file_result_path)
