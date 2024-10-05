@@ -33,7 +33,7 @@ def solve_GA_contrast_optimization(generations: int):
         apply_polynomial_mutation(population, limits, mutation_probability_param, distribution_index_param)
         
         # 6. Calculate aptitude after mutation and crossover.
-        aptitude_af = evaluate_population(population, image_objective_function, image.copy())
+        aptitude_af = evaluate_population(population, objetive_function, image.copy())
         # 6.1 Get the worst individual index of the population (child population).
         worst_aptitude_index = np.argmin(aptitude_af)
                 
@@ -42,7 +42,7 @@ def solve_GA_contrast_optimization(generations: int):
                
 
     # get the final aptitude vector
-    aptitude = evaluate_population(population, image_objective_function, image.copy())
+    aptitude = evaluate_population(population, objetive_function, image.copy())
     # get the best individual index = max(aptitude)
     best_individual_index = np.argmax(aptitude)
     
@@ -56,7 +56,7 @@ def solve_GA_contrast_optimization(generations: int):
 # ===============================================================
 # => Image configurations
 img_path = 'assets/kodim23.png'
-img_height = 700
+img_height = 500
 # => Objective function  ('shannon_entropy' or 'spatial_entropy')
 ob = 'spatial_entropy'  
 
@@ -94,8 +94,9 @@ original_entropy = calculate_shannon_entropy(image) if ob == 'shannon_entropy' e
 print(f'{"*"*50}')
 print('=> Image configurations:')
 print(f'Image path: {img_path}')
-print(f'Image max height: {img_height}px')
+print(f'Image shape: {image.shape}')
 print(f'Original image entropy: {original_entropy}')
+print(f'Objective function: {ob}')
 print('=> Algorithm configurations:')
 print(f'Number of generations: {generations}')
 print(f'Population size: {population_size}')
@@ -121,36 +122,3 @@ image_improved = apply_sigmoid(image.copy(), result['individual'][0], result['in
 imp_entropy = calculate_shannon_entropy(image_improved) if ob == 'shannon_entropy' else calculate_spatial_entropy(image_improved)
 # show the results in a plot comparison (original image vs best image)
 plot_comparison(image, image_improved, original_entropy, imp_entropy, result['individual'][0], result['individual'][1])
-
-"""
-# ===============================================================
-# EXECUTION OF THE MAIN FUNCTION
-# ===============================================================
-print(f'\n{"*"*50}')
-print('Running Algorithm...')
-results = [] # list of dictionaries to store the results
-for i in range(10):
-    # show the current execution, the results of function and then add the results to the list
-    print(f'Execution {i+1}')
-    result = solve_GA_contrast_optimization(generations)
-    print(f'\tIndividual: {result["individual"]}, Aptitude = {result["aptitude"]}')
-    results.append(result)
-else:
-    print('Algorithm finished successfully!')    
-    
-# only pass the results.aptitude of the results dictionaries
-partial_results = np.array([result['aptitude'] for result in results])
-# get the best, median, worst and standard deviation of the results
-best = np.min(partial_results)
-median = np.median(partial_results)
-worst = np.max(partial_results)
-std = np.std(partial_results)
-
-print(f'\n{"*"*50}')
-print(f'Statistics:')
-print(f'Original image entropy: {original_entropy}')
-print(f'Best: {best}')
-print(f'Median: {median}')
-print(f'Worst: {worst}')
-print(f'Standard deviation: {std}')
-"""
