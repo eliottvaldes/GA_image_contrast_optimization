@@ -7,7 +7,8 @@ from calculate_aptitude import evaluate_population, obj_func_shannon_entropy, ob
 from tournament_parent_selection import tournament_selection_minimize, tournament_selection_maximize
 from sbx_crossover import sbx
 from polynomial_mutation import apply_polynomial_mutation
-
+# import the function to save the results
+from results_helpers import save_results
 
 """
 @breif: This runs the Genetic Algorithm to solve any optimization problem for real-valued functions. Particularly, it solves the contrast optimization problem.
@@ -75,7 +76,7 @@ def solve_GA_contrast_optimization(ga_config: dict):
     best_individual_index = np.argmax(aptitude)
     
     # return the object with the best individual and its aptitude after all generations
-    return {'individual': population[best_individual_index], 'aptitude': aptitude[best_individual_index]}
+    return {'individual': list(population[best_individual_index]), 'aptitude': aptitude[best_individual_index]}
 
 
 
@@ -95,8 +96,8 @@ if __name__ == '__main__':
 
     # Create the configuration object
     ga_config = {
-        'population_size': 50,
-        'generations': 40,
+        'population_size': 10,
+        'generations': 1,
         'variables': 2,
         'limits': np.array([[0, 1], [0, 10]]),
         'sbx_prob': 0.8,
@@ -114,4 +115,34 @@ if __name__ == '__main__':
     # ---------------------------------------------------------------
     print(f"Running the Genetic Algorithm to solve the contrast optimization problem...")
     result = solve_GA_contrast_optimization(ga_config)
-    print(f"{result= } ")
+    print(f"End of the Genetic Algorithm. {result= } ")
+    
+    # ---------------------------------------------------------------
+    # SAVE THE RESULTS AND CONFIGURATION
+    # ---------------------------------------------------------------
+    file_result_path = './assets/results/'        
+    ga_log = {}
+    
+    # add the individual values to the ga_log
+    for i, value in enumerate(result['individual']):
+        ga_log[f'individual_variable_{i+1}'] = value
+    # add the aptitude to the ga_log
+    ga_log['aptitude'] = result['aptitude']
+    #add the configuration to the ga_log
+    ga_log.update(ga_config)
+    # replace the objetive_function with the name of the function
+    ga_log['objetive_function'] = ga_log['objetive_function'].__name__
+    # replace the parent_selection_optimization with the name of the function
+    ga_log['parent_selection_optimization'] = ga_log['parent_selection_optimization'].__name__
+    # cast the limits to a string(list())
+    ga_log['limits'] = str(list(ga_log['limits']))
+    # replace the image with the path
+    ga_log['image'] = img_path
+    # save the max height of the image using the image.shape attribute
+    ga_log['image_height'] = image.shape[0]    
+    
+    print(f"{ga_log= }")
+    print(f"{file_result_path= }")
+    
+    # save the results    
+    save_results(ga_log, file_result_path)
