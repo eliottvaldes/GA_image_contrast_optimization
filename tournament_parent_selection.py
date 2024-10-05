@@ -11,40 +11,36 @@ import secrets
 def tournament_selection_maximize(population: np.ndarray, aptitude: np.ndarray) -> np.ndarray:    
     num_parents, num_variables = population.shape            
     parents = np.zeros((num_parents, num_variables))    
-
     for i in range(num_parents):
-        # Select two random individuals
         idx1 = secrets.randbelow(num_parents)
         idx2 = secrets.randbelow(num_parents)
-        # Compare the aptitude of the two individuals
+        # PRIORITIZE THE INDIVIDUAL WITH THE *HIGHEST* APTITUDE
         if aptitude[idx1] > aptitude[idx2]:
             parents[i] = population[idx1]
         else:
             parents[i] = population[idx2]
-    
-    # Return the selected parents
+
     return parents
 
 
 def tournament_selection_minimize(population: np.ndarray, aptitude: np.ndarray) -> np.ndarray:    
     num_parents, num_variables = population.shape            
     parents = np.zeros((num_parents, num_variables))    
-
     for i in range(num_parents):
-        # Select two random individuals
         idx1 = secrets.randbelow(num_parents)
         idx2 = secrets.randbelow(num_parents)
-        # Compare the aptitude of the two individuals
+        # PRIORITIZE THE INDIVIDUAL WITH THE *LOWEST* APTITUDE
         if aptitude[idx1] < aptitude[idx2]:
             parents[i] = population[idx1]
         else:
             parents[i] = population[idx2]
     
-    # Return the selected parents
     return parents
 
+
+
 if __name__ == '__main__':
-    # Example usage
+    # simulate a population
     population = np.array([
         [0.06545813, 2.47276573],
         [0.46758506, 4.11341923],
@@ -57,13 +53,18 @@ if __name__ == '__main__':
         [0.29528902, 4.06142647],
         [0.15634745, 6.05773729],
     ])
-
+    # simulate an aptitude vector
     aptitude = np.array([
         7.60878204, 7.51376325, 7.46352892, 7.59441195, 7.60498951,
         7.60841625, 7.60841625, 7.38423158, 7.56316415, 7.58626385, 
     ])
 
-    
-    # Seleccionar padres usando el torneo    
-    selected_parents = tournament_selection_maximize(population, aptitude)
-    print(f'\nPadres seleccionados: \n{selected_parents}')
+    print(f'Population: \n{population}')
+    print(f'\n{"-"*20}')
+    print(f'Example usage of tournament selection for maximization:')
+    parents = tournament_selection_maximize(population, aptitude)
+    print(f'Selected Parents: \n{parents}')    
+    print(f'\n{"-"*20}')
+    print(f'Example usage of tournament selection for minimization:')
+    parents = tournament_selection_minimize(population, aptitude)
+    print(f'Selected Parents: \n{parents}\n')
