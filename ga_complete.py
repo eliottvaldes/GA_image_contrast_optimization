@@ -7,8 +7,9 @@ from calculate_aptitude import evaluate_population, obj_func_shannon_entropy, ob
 from tournament_parent_selection import tournament_selection_minimize, tournament_selection_maximize
 from sbx_crossover import sbx
 from polynomial_mutation import apply_polynomial_mutation
-# import the function to save the results
-from results_helpers import save_results
+# import the function to save the results and plot the images
+from results_helpers import save_results, plot_results
+
 
 """
 @breif: This runs the Genetic Algorithm to solve any optimization problem for real-valued functions. Particularly, it solves the contrast optimization problem.
@@ -90,6 +91,10 @@ def run_ga(ga_config: dict, save_log: bool, show_image_result: bool = False):
     img_max_height = ga_config.get('img_max_height', 900)
     # read the image
     image = read_image(img_path, img_max_height)
+    
+    # ---------------------------------------------------------------
+    # CONFIGURE THE GA
+    # ---------------------------------------------------------------
     # add the image to the configuration
     ga_config['image'] = image
     # transform the 'limits' lsit to a numpy array
@@ -103,9 +108,9 @@ def run_ga(ga_config: dict, save_log: bool, show_image_result: bool = False):
     # ---------------------------------------------------------------
     print(f"Running the Genetic Algorithm to solve the contrast optimization problem...")
     print(f'{"-"*60}')
-    result = solve_GA_contrast_optimization(ga_config)
+    ga_result = solve_GA_contrast_optimization(ga_config)
     print(f'{"-"*60}')
-    print(f"End of the Genetic Algorithm. {result= } \n")
+    print(f"End of the Genetic Algorithm. {ga_result= } \n")
     
     # ---------------------------------------------------------------
     # SAVE THE RESULTS AND CONFIGURATION
@@ -113,4 +118,8 @@ def run_ga(ga_config: dict, save_log: bool, show_image_result: bool = False):
     if save_log:
         file_result_path = './assets/results/'    
         # save the results    
-        save_results(result, ga_config, file_result_path)
+        save_results(ga_result.copy(), ga_config.copy(), file_result_path)
+        
+    if show_image_result:
+        # show the image
+        plot_results(image, ga_result, ga_config['objetive_function'].__name__)
