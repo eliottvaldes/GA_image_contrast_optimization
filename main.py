@@ -2,16 +2,37 @@
 import numpy as np
 # import the necessary functions
 from generate_population import generate_initial_population
-from image_helpers import read_image, show_results, plot_comparison
-from calculate_aptitude import evaluate_population, image_objective_function, image_objective_function_spatial_entropy, calculate_shannon_entropy, calculate_spatial_entropy, apply_sigmoid
-from tournament_parent_selection import tournament_selection_maximize
+from image_helpers import read_image
+from calculate_aptitude import evaluate_population, obj_func_shannon_entropy, obj_func_shannon_spatial_entropy
+from tournament_parent_selection import tournament_selection_minimize, tournament_selection_maximize
 from sbx_crossover import sbx
 from polynomial_mutation import apply_polynomial_mutation
 
 
-
-def solve_GA_contrast_optimization(generations: int):   
-
+"""
+@breif: This runs the Genetic Algorithm to solve any optimization problem for real-valued functions. Particularly, it solves the contrast optimization problem.
+@param: ga_config (dict): The configuration object for the Genetic Algorithm.
+@return: dict: The object with the best individual and its aptitude after all generations.
+"""
+def solve_GA_contrast_optimization(ga_config: dict):  
+    # --------------------------------------------------------------- 
+    # Get all configurations
+    # ---------------------------------------------------------------
+    population_size = ga_config.get('population_size', 50)
+    generations = ga_config.get('generations', 40)
+    variables = ga_config.get('variables', 2)
+    limits = ga_config.get('limits', np.array([[0, 1], [0, 10]]))
+    sbx_prob = ga_config.get('sbx_prob', 0.8)
+    sbx_dispersion_param = ga_config.get('sbx_dispersion_param', 2)
+    mutation_probability_param = ga_config.get('mutation_probability_param', 0.7)
+    distribution_index_param = ga_config.get('distribution_index_param', 95)
+    objetive_function = ga_config.get('objetive_function', obj_func_shannon_entropy)    
+    parent_selection_optimization = ga_config.get('parent_selection_optimization', tournament_selection_maximize)
+    image = ga_config.get('image', None)
+        
+    # ---------------------------------------------------------------
+    # Start the Genetic Algorithm
+    # ---------------------------------------------------------------
     # 0. Generate initial population.
     population = generate_initial_population(population_size, variables, limits)
      
@@ -24,7 +45,7 @@ def solve_GA_contrast_optimization(generations: int):
         best_individual_population = population[np.argmax(aptitude)].copy()
                 
         # 3. Select the parents using tournament selection.
-        population = tournament_selection_maximize(population.copy(), aptitude)
+        population = parent_selection_optimization(population.copy(), aptitude)
         
         # 4. SBX crossover.
         sbx(population, limits, sbx_prob, sbx_dispersion_param)
@@ -51,74 +72,39 @@ def solve_GA_contrast_optimization(generations: int):
 
 
 
-# ===============================================================
-# GENERAL CONFIGURATIONS
-# ===============================================================
-# => Image configurations
-img_path = 'assets/kodim23.png'
-img_height = 500
-# => Objective function  ('shannon_entropy' or 'spatial_entropy')
-ob = 'spatial_entropy'  
+if __name__ == '__main__':
+    # ---------------------------------------------------------------
+    # CONFIGURATIONS
+    # ---------------------------------------------------------------
+    # => Image configurations
+    img_path = 'assets/microphotographs-of-pulmonary-blood-vessels.png'
+    img_max_height = 900
+    # => Objective function to use ('shannon_entropy' or 'spatial_entropy')
+    ob_config = 'spatial_entropy'
+    # => Select the optimization goal ('maximize' or 'minimize')
+    parent_selection_optimization = 'maximize'
 
-# => Genetic Algorithm configurations
-population_size = 50 #np -> Size of the population
-generations = 40 #ng -> Number of generations
-variables = 2 #nVar -> Number of variables of each individual
-limits = np.array([[0, 1],   # Limits for variable 1
-                [0, 10]]) # Limits for variable 2
+    image = read_image(img_path, img_max_height)
 
-# ===============================================================
-# SBX CONFIGURATIONS
-# ===============================================================
-sbx_prob = 0.8 #pc -> Probability of crossover
-sbx_dispersion_param = 4 #nc -> Distribution index (ideal 1 or 2)    
-
-# ===============================================================
-# POLYNOMIAL MUTATION CONFIGURATIONS
-# ===============================================================
-mutation_probability_param = 0.6 #r -> Probability of mutation
-distribution_index_param = 95 #nm -> Distribution index ( ideal 20-100)        
-
-# ===============================================================
-# PRE-PROCESSING (read the image and calculate the entropy)
-# ===============================================================
-# 1. define the objective function to use over the GA (shannon_entropy or spatial_entropy).
-objetive_function = image_objective_function if ob == 'shannon_entropy' else image_objective_function_spatial_entropy
-# 2. prepare the image.
-image = read_image(img_path, img_height)
-# 3. calculate the entropy of the original image.
-original_entropy = calculate_shannon_entropy(image) if ob == 'shannon_entropy' else calculate_spatial_entropy(image)
+    # Create the configuration object
+    ga_config = {
+        'population_size': 50,
+        'generations': 40,
+        'variables': 2,
+        'limits': np.array([[0, 1], [0, 10]]),
+        'sbx_prob': 0.8,
+        'sbx_dispersion_param': 2,
+        'mutation_probability_param': 0.7,
+        'distribution_index_param': 95,
+        'objetive_function': obj_func_shannon_entropy if ob_config == 'shannon_entropy' else obj_func_shannon_spatial_entropy,
+        'parent_selection_optimization': tournament_selection_maximize if parent_selection_optimization == 'maximize' else tournament_selection_minimize,
+        'image': image
+    }
 
 
-# Show the configurations
-print(f'{"*"*50}')
-print('=> Image configurations:')
-print(f'Image path: {img_path}')
-print(f'Image shape: {image.shape}')
-print(f'Original image entropy: {original_entropy}')
-print(f'Objective function: {ob}')
-print('=> Algorithm configurations:')
-print(f'Number of generations: {generations}')
-print(f'Population size: {population_size}')
-print(f'Number of variables: {variables}')
-print(f'Limits: \n{limits}')
-print(f'SBX Probability (pc): {sbx_prob}')
-print(f'SBX Dispersion Parameter (nc): {sbx_dispersion_param}')
-print(f'Mutation Probability: {mutation_probability_param}')
-print(f'Distribution Index (nm): {distribution_index_param}')
-
-
-# ===============================================================
-# EXECUTION OF GENETIC ALGORITHM
-# ===============================================================    
-result = solve_GA_contrast_optimization(generations)
-
-# ===============================================================
-# POST-PROCESSING
-# ===============================================================
-# apply the sigmoid to the image with the best individual and then calculate the entropy
-print(f'\tIndividual: {result["individual"]}, Aptitude = {result["aptitude"]}')
-image_improved = apply_sigmoid(image.copy(), result['individual'][0], result['individual'][1])
-imp_entropy = calculate_shannon_entropy(image_improved) if ob == 'shannon_entropy' else calculate_spatial_entropy(image_improved)
-# show the results in a plot comparison (original image vs best image)
-plot_comparison(image, image_improved, original_entropy, imp_entropy, result['individual'][0], result['individual'][1])
+    # ---------------------------------------------------------------
+    # EXECUTE THE GENETIC ALGORITHM
+    # ---------------------------------------------------------------
+    print(f"Running the Genetic Algorithm to solve the contrast optimization problem...")
+    result = solve_GA_contrast_optimization(ga_config)
+    print(f"{result= } ")
