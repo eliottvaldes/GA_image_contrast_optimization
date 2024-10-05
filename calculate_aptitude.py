@@ -30,7 +30,6 @@ def apply_sigmoid(img, alpha: float, delta: float)-> float:
 
 
 def calculate_shannon_entropy(img) -> float:
-    # Convertir la imagen a un arreglo 1D
     img_flat = img.flatten()
     # Calcular el histograma (counts)
     hist_counts, _ = np.histogram(img_flat, bins=256, range=(0, 1), density=False)
@@ -44,12 +43,9 @@ def calculate_shannon_entropy(img) -> float:
     return shannon_entropy    
 
 
-def image_objective_function(individual: np.ndarray, image: np.ndarray) -> float:
-    # get the alpha and delta values
+def obj_func_shannon_entropy(individual: np.ndarray, image: np.ndarray) -> float:
     alpha, delta = individual
-    # apply the sigmoid to the image
     sigmoid_image = apply_sigmoid(image, alpha, delta)
-    # calculate the shannon entropy
     return calculate_shannon_entropy(sigmoid_image)
 
 
@@ -78,7 +74,7 @@ def calculate_spatial_entropy(img: np.ndarray) -> float:
     return spatial_entropy
 
 
-def image_objective_function_spatial_entropy(individual: np.ndarray, image: np.ndarray) -> float:
+def obj_func_shannon_spatial_entropy(individual: np.ndarray, image: np.ndarray) -> float:
     alpha, delta = individual
     sigmoid_image = apply_sigmoid(image, alpha, delta)
     return calculate_spatial_entropy(sigmoid_image)
