@@ -63,12 +63,13 @@ def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
 @description: This function plots the original image and the improved image using the best individual found by the genetic algorithm.
 @param: img_original: np.ndarray - original image
 @param: ga_result: dict - dictionary with the results of the genetic algorithm
-@param: tmp_objetive_function: str - name of the objective function used in the genetic algorithm
+@param: tmp_objetive_function: str - name of the objective function used in the genetic algorithm.
+@param: dip_function_selected: str - name of the digital image processing function used in the genetic algorithm.
 @return: None
 """
-def plot_results(img_original, ga_result: dict, tmp_objetive_function: str) -> None:
+def plot_results(img_original, ga_result: dict, tmp_objetive_function: str, dip_function_selected: str) -> None:
     import matplotlib.pyplot as plt
-    from calculate_aptitude import apply_sigmoid, calculate_shannon_entropy, calculate_spatial_entropy
+    from calculate_aptitude import apply_sigmoid, apply_clahe, calculate_shannon_entropy, calculate_spatial_entropy
     import numpy as np
 
     # ---------------------------------------------------------------
@@ -86,11 +87,20 @@ def plot_results(img_original, ga_result: dict, tmp_objetive_function: str) -> N
     # IMPROVE THE IMAGE
     # ---------------------------------------------------------------
     # get the improved variables
-    best_alfa, best_beta = ga_result['individual']
+    variable_1, variable_2 = ga_result['individual']
     # generate a copy of the image
     img_improved = img_original.copy()
-    # apply the sigmoid function
-    img_improved = apply_sigmoid(img_improved, best_alfa, best_beta)
+    # apply the dip function
+    if pdi_function_4_improvement == 'sigmoid':
+        img_improved = apply_sigmoid(img_improved, variable_1, variable_2)
+        image_description = f"Sigmoid function with alfa = {variable_1} and delta = {variable_2}"
+    elif pdi_function_4_improvement == 'clahe':
+        variable_2 = int(np.round(variable_2)) 
+        img_improved = apply_clahe(img_improved, variable_1, variable_2)
+        image_description = f"CLAHE function with clip limit = {variable_1} and grid size = {variable_2}"
+    else:
+        raise ValueError(f'The function {pdi_function_4_improvement} is not implemented')
+    
     # calculate the entropy of the improved image
     best_image_entropy = 0.00
     if tmp_objetive_function == 'obj_func_spatial_entropy':
@@ -112,7 +122,7 @@ def plot_results(img_original, ga_result: dict, tmp_objetive_function: str) -> N
 
     # Best image
     axes[1].imshow(img_improved, cmap='gray')
-    axes[1].set_title(f'Best Image\nEntropy: {best_image_entropy}\n(alpha={best_alfa}, beta={best_beta})')
+    axes[1].set_title(f'Best Image\nEntropy: {best_image_entropy}\n{image_description}')
     axes[1].axis('off')
 
     plt.tight_layout()
