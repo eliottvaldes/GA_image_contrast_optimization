@@ -70,64 +70,48 @@ def save_results(ga_result: dict, ga_config: dict,  folder_path: str) -> None:
 def plot_results(img_original, ga_result: dict, tmp_objetive_function: str, dip_function_selected: str) -> None:
     import matplotlib.pyplot as plt
     from calculate_aptitude import apply_sigmoid, apply_clahe, calculate_shannon_entropy, calculate_spatial_entropy
+    from mpl_toolkits.axes_grid1 import ImageGrid
     import numpy as np
+    import os
 
-    # ---------------------------------------------------------------
-    # CALCULATE THE ENTROPY OF THE ORIGINAL IMAGE
-    # ---------------------------------------------------------------
-    # calculate the entropy of the original image    
-    original_entropy = 0.00
-    if tmp_objetive_function == 'obj_func_spatial_entropy':
-        original_entropy = calculate_spatial_entropy(img_original)
-    else:
-        original_entropy = calculate_shannon_entropy(img_original)
-        
+    # Calculate the entropy of the original image
+    original_entropy = calculate_spatial_entropy(img_original) if tmp_objetive_function == 'obj_func_spatial_entropy' else calculate_shannon_entropy(img_original)
     
-    # ---------------------------------------------------------------
-    # IMPROVE THE IMAGE
-    # ---------------------------------------------------------------
-    # get the improved variables
+    # improve the image
     variable_1, variable_2 = ga_result['individual']
-    # generate a copy of the image
     img_improved = img_original.copy()
-    # apply the dip function
     if dip_function_selected == 'sigmoid':
         img_improved = apply_sigmoid(img_improved, variable_1, variable_2)
         image_description = f"Sigmoid function. \nalfa = {variable_1} and delta = {variable_2}\nEntropy: {tmp_objetive_function}"
     elif dip_function_selected == 'clahe':
-        variable_2 = int(np.round(variable_2)) 
+        variable_2 = int(np.round(variable_2))
         img_improved = apply_clahe(img_improved, variable_1, variable_2)
         image_description = f"CLAHE function. \nclip limit = {variable_1} and grid size = {variable_2}\nEntropy: {tmp_objetive_function}"
     else:
         raise ValueError(f'The function {dip_function_selected} is not implemented')
-    
+
     # calculate the entropy of the improved image
-    best_image_entropy = 0.00
-    if tmp_objetive_function == 'obj_func_spatial_entropy':
-        best_image_entropy = calculate_spatial_entropy(img_improved)
-    else:
-        best_image_entropy = calculate_shannon_entropy(img_improved)
-        
-    # ---------------------------------------------------------------
-    # PLOT THE RESULTS
-    # ---------------------------------------------------------------
-    img_improved = (img_improved * 255).astype(np.uint8)
+    best_image_entropy = calculate_spatial_entropy(img_improved) if tmp_objetive_function == 'obj_func_spatial_entropy' else calculate_shannon_entropy(img_improved)
+    
+    # Create the figure and the grid of images
+    fig = plt.figure(figsize=(12, 6))
+    grid = ImageGrid(fig, 111, nrows_ncols=(1, 2), axes_pad=0, share_all=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    # Plot Original image
+    grid[0].imshow(img_original, cmap='gray')
+    grid[0].set_title(f'Original Image\nEntropy: {original_entropy}')
 
-    # Original image
-    axes[0].imshow(img_original, cmap='gray')
-    axes[0].set_title(f'Original Image\nEntropy: {original_entropy}')
-    axes[0].axis('off')
+    # Plot Improved image
+    grid[1].imshow(img_improved, cmap='gray')
+    grid[1].set_title(f'Best Image\nEntropy: {best_image_entropy}\n{image_description}')
 
-    # Best image
-    axes[1].imshow(img_improved, cmap='gray')
-    axes[1].set_title(f'Best Image\nEntropy: {best_image_entropy}\n{image_description}')
-    axes[1].axis('off')
+    # Deactivate the axis
+    for ax in grid:
+        ax.axis('off')
 
+    # Show the plot
     plt.tight_layout()
     plt.show()
-
 
     
 
@@ -135,6 +119,7 @@ if __name__ == "__main__":
     
     # configuration for local test
     import numpy as np
+    import cv2
         
     file_result_path= './assets/results/'    
     result={'individual': [0.9087878718730255, 6.473717473195805], 'aptitude': 4.97570161859357}
@@ -143,5 +128,7 @@ if __name__ == "__main__":
     save_results(result, ga_config, file_result_path)
     
     # plot the results
-    img_original = np.random.rand(400, 400, 3)
-    plot_results(img_original, result, 'spatial_entropy')
+    img = cv2.imread('./assets/microphotographs-of-pulmonary-blood-vessels.png', cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = img.astype(np.float64) / 255.0
+    plot_results(img, result, 'spatial_entropy', 'sigmoid')
