@@ -34,9 +34,13 @@ def solve_GA_contrast_optimization(ga_config: dict):
     image = ga_config.get('image', None)
     
     # Dynamic configurations
-    # Define the increment_rate for the sbx_dispersion_param. It's calculated based on the number of generations+(population_size/variables**variables). Max value of sbx_dispersion_param is 20.
-    increment_rate = (20 - sbx_dispersion_param) / (generations+(population_size/variables**variables)) if sbx_dispersion_param < 20 else 0
-        
+    activate_dynamic_sbx_increasing = ga_config.get('dynamic_sbx_increasing', False)
+    if activate_dynamic_sbx_increasing:
+        # Define the increment_rate for the sbx_dispersion_param. It's calculated based on the number of generations+(population_size/variables**variables). Max value of sbx_dispersion_param is 20.
+        increment_rate = (20 - sbx_dispersion_param) / (generations+(population_size/variables**variables)) if sbx_dispersion_param < 20 else 0
+    else:
+        increment_rate = 0
+            
     # ---------------------------------------------------------------
     # Start the Genetic Algorithm
     # ---------------------------------------------------------------
