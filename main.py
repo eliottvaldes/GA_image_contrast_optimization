@@ -1,3 +1,4 @@
+import json
 from ga_complete import run_ga
 
 # => Image configurations
@@ -42,6 +43,11 @@ ga_config = {
 
 save_log = True
 show_image_result = True
+
+# ---------------------------------------
+# Show the configuration
+# ---------------------------------------
+print(f"=> GA Configuration: \n{json.dumps(ga_config, indent=4)}")
 
 # =======================================
 # RUN THE GA
