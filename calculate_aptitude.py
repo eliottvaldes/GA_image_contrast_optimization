@@ -90,7 +90,7 @@ def obj_func_spatial_entropy(individual: np.ndarray, pdi_function: str, image: n
         improved_image = apply_clahe(image, value_1, value_2)
     else:
         raise ValueError(f'The function {pdi_function} is not implemented')
-    return calculate_spatial_entropy(sigmoid_image)
+    return calculate_spatial_entropy(improved_image)
 
 
 
