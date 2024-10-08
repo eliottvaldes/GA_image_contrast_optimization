@@ -129,4 +129,4 @@ def run_ga(ga_config: dict, save_log: bool, show_image_result: bool = False):
         
     if show_image_result:
         # show the image
-        plot_results(image, ga_result, ga_config['objetive_function'].__name__, dip_function_4_improvement)
+        plot_results(image, ga_result, ga_config['objetive_function'].__name__, ga_config['dip_function_4_improvement'])
