@@ -32,9 +32,9 @@ def solve_GA_contrast_optimization(ga_config: dict):
     parent_selection_optimization = ga_config['parent_selection_optimization']
     # get the image
     image = ga_config.get('image', None)
-    # define the parameters for the objetive function depending on the pdi improvement function selected
-    pdi_function_4_improvement = ga_config.get('pdi_function_4_improvement', 'sigmoid')
-    of_params = {'pdi_function': pdi_function_4_improvement, 'image': image.copy()}
+    # define the parameters for the objetive function depending on the dip improvement function selected
+    dip_function_4_improvement = ga_config.get('dip_function_4_improvement', 'sigmoid')
+    of_params = {'pdi_function': dip_function_4_improvement, 'image': image.copy()}
     
     # Dynamic configurations
     activate_dynamic_sbx_increasing = ga_config.get('dynamic_sbx_increasing', False)
@@ -129,4 +129,4 @@ def run_ga(ga_config: dict, save_log: bool, show_image_result: bool = False):
         
     if show_image_result:
         # show the image
-        plot_results(image, ga_result, ga_config['objetive_function'].__name__)
+        plot_results(image, ga_result, ga_config['objetive_function'].__name__, dip_function_4_improvement)
