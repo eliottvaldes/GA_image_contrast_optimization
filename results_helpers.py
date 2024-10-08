@@ -91,15 +91,15 @@ def plot_results(img_original, ga_result: dict, tmp_objetive_function: str, dip_
     # generate a copy of the image
     img_improved = img_original.copy()
     # apply the dip function
-    if pdi_function_4_improvement == 'sigmoid':
+    if dip_function_selected == 'sigmoid':
         img_improved = apply_sigmoid(img_improved, variable_1, variable_2)
-        image_description = f"Sigmoid function with alfa = {variable_1} and delta = {variable_2}"
-    elif pdi_function_4_improvement == 'clahe':
+        image_description = f"Sigmoid function. \nalfa = {variable_1} and delta = {variable_2}\nEntropy: {tmp_objetive_function}"
+    elif dip_function_selected == 'clahe':
         variable_2 = int(np.round(variable_2)) 
         img_improved = apply_clahe(img_improved, variable_1, variable_2)
-        image_description = f"CLAHE function with clip limit = {variable_1} and grid size = {variable_2}"
+        image_description = f"CLAHE function. \nclip limit = {variable_1} and grid size = {variable_2}\nEntropy: {tmp_objetive_function}"
     else:
-        raise ValueError(f'The function {pdi_function_4_improvement} is not implemented')
+        raise ValueError(f'The function {dip_function_selected} is not implemented')
     
     # calculate the entropy of the improved image
     best_image_entropy = 0.00
