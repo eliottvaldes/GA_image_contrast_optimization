@@ -24,6 +24,14 @@ def apply_sigmoid(img, alpha: float, delta: float)-> float:
     return output_img
 
 
+def apply_clahe(img: np.ndarray, clip_limit: float, tile_grid_size: int) -> np.ndarray:
+    clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(tile_grid_size, tile_grid_size))
+    img_clahe = np.zeros_like(img)
+    for i in range(3):
+        img_clahe[:, :, i] = clahe.apply(np.uint8(img[:, :, i] * 255))
+    return img_clahe
+
+
 def calculate_shannon_entropy(img) -> float:
     img_flat = img.flatten()
     hist_counts, _ = np.histogram(img_flat, bins=256, range=(0, 1), density=False)
