@@ -9,12 +9,12 @@ import cv2
 @param of_params: Any additional parameter needed by the objective function. could change depending on the objective function
 @return: np.ndarray -> Aptitude of the individuals in the population (Vector) [9, 5]
 """
-def evaluate_population(population: np.ndarray, objective_function, of_params) -> np.ndarray:
+def evaluate_population(population: np.ndarray, objective_function, **of_params) -> np.ndarray:
     n_individuals, n_var = population.shape
     aptitude = np.zeros(n_individuals)
     for i in range(n_individuals):
         individual = population[i]
-        aptitude[i] = objective_function(individual, of_params)
+        aptitude[i] = objective_function(individual, **of_params)
     return aptitude
 
 
@@ -41,10 +41,19 @@ def calculate_shannon_entropy(img) -> float:
     return -np.sum(probabilities * np.log2(probabilities))    
 
 
-def obj_func_shannon_entropy(individual: np.ndarray, image: np.ndarray) -> float:
-    alpha, delta = individual
-    sigmoid_image = apply_sigmoid(image, alpha, delta)
-    return calculate_shannon_entropy(sigmoid_image)
+def obj_func_shannon_entropy(individual: np.ndarray, pdi_function: str, image: np.ndarray) -> float:
+    value_1, value_2 = individual
+    if pdi_function == 'sigmoid':
+        # value_1 = alpha, value_2 = delta
+        improved_image = apply_sigmoid(image, value_1, value_2)
+    elif pdi_function == 'clahe':
+        # value_1 = clip_limit, value_2 = tile_grid_size
+        value_2 = int(np.round(value_2)) 
+        improved_image = apply_clahe(image, value_1, value_2)
+    else:
+        raise ValueError(f'The function {pdi_function} is not implemented')
+    
+    return calculate_shannon_entropy(improved_image)
 
 
 def calculate_spatial_entropy(img: np.ndarray) -> float:
@@ -64,9 +73,15 @@ def calculate_spatial_entropy(img: np.ndarray) -> float:
     return -np.sum(probabilities * np.log2(probabilities))
 
 
-def obj_func_spatial_entropy(individual: np.ndarray, image: np.ndarray) -> float:
-    alpha, delta = individual
-    sigmoid_image = apply_sigmoid(image, alpha, delta)
+def obj_func_spatial_entropy(individual: np.ndarray, pdi_function: str, image: np.ndarray) -> float:
+    value_1, value_2 = individual
+    if pdi_function == 'sigmoid':
+        improved_image = apply_sigmoid(image, value_1, value_2)
+    elif pdi_function == 'clahe':
+        value_2 = int(np.round(value_2)) 
+        improved_image = apply_clahe(image, value_1, value_2)
+    else:
+        raise ValueError(f'The function {pdi_function} is not implemented')
     return calculate_spatial_entropy(sigmoid_image)
 
 
@@ -75,10 +90,12 @@ if __name__ == '__main__':
     # JUST FOR TESTING
     # simulate a population
     population = np.array([[2.3 , 4.5], [1.4, -0.2]])
-    # simulate an image
-    image = np.random.rand(400, 400)    
+    params = {
+        'pdi_function': 'sigmoid', # sigmoid or clahe
+        'image': np.random.rand(400, 400)
+    }
     # evaluate the population
-    aptitude = evaluate_population(population, obj_func_shannon_entropy, image)
+    aptitude = evaluate_population(population, obj_func_shannon_entropy, **params)
     # get the index of the max aptitude
     best_index = np.argmax(aptitude)    
     
