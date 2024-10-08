@@ -32,6 +32,9 @@ def solve_GA_contrast_optimization(ga_config: dict):
     parent_selection_optimization = ga_config['parent_selection_optimization']
     # get the image
     image = ga_config.get('image', None)
+    # define the parameters for the objetive function depending on the pdi improvement function selected
+    pdi_function_4_improvement = ga_config.get('pdi_function_4_improvement', 'sigmoid')
+    of_params = {'pdi_function': pdi_function_4_improvement, 'image': image.copy()}
     
     # Dynamic configurations
     activate_dynamic_sbx_increasing = ga_config.get('dynamic_sbx_increasing', False)
@@ -51,7 +54,7 @@ def solve_GA_contrast_optimization(ga_config: dict):
         print(f'Generation {generation+1}/{generations}')
         
         # 1. Calculate aptitude vector of the population.
-        aptitude = evaluate_population(population.copy(), objetive_function, image.copy())
+        aptitude = evaluate_population(population.copy(), objetive_function, **of_params)
         # 2. Get the best individual of the current population.
         best_individual_population = population[np.argmax(aptitude)].copy()
                 
@@ -65,7 +68,7 @@ def solve_GA_contrast_optimization(ga_config: dict):
         apply_polynomial_mutation(population, limits, mutation_probability_param, distribution_index_param)
         
         # 6. Calculate aptitude after mutation and crossover.
-        aptitude_af = evaluate_population(population, objetive_function, image.copy())
+        aptitude_af = evaluate_population(population, objetive_function, **of_params)
         # 6.1 Get the worst individual index of the population (child population).
         worst_aptitude_index = np.argmin(aptitude_af)
                 
@@ -77,7 +80,7 @@ def solve_GA_contrast_optimization(ga_config: dict):
                
 
     # get the final aptitude vector
-    aptitude = evaluate_population(population, objetive_function, image.copy())
+    aptitude = evaluate_population(population, objetive_function, **of_params)
     # get the best individual index = max(aptitude)
     best_individual_index = np.argmax(aptitude)
     
