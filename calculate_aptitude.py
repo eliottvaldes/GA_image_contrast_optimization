@@ -25,11 +25,19 @@ def apply_sigmoid(img, alpha: float, delta: float)-> float:
 
 
 def apply_clahe(img: np.ndarray, clip_limit: float, tile_grid_size: int) -> np.ndarray:
-    clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(tile_grid_size, tile_grid_size))
-    img_clahe = np.zeros_like(img)
-    for i in range(3):
-        img_clahe[:, :, i] = clahe.apply(np.uint8(img[:, :, i] * 255))
-    return img_clahe
+    if len(img.shape) == 2:
+        img = img.reshape(img.shape[0], img.shape[1], 1)
+    img = (img * 255).astype(np.uint8)
+    if img.shape[2] == 1:
+        clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(tile_grid_size, tile_grid_size))
+        img[:, :, 0] = clahe.apply(img[:, :, 0])
+    else:
+        img_lab = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
+        clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(tile_grid_size, tile_grid_size))
+        img_lab[:, :, 0] = clahe.apply(img_lab[:, :, 0])
+        img = cv2.cvtColor(img_lab, cv2.COLOR_LAB2RGB)
+        
+    return img.astype(np.float64) / 255.0
 
 
 def calculate_shannon_entropy(img) -> float:
@@ -89,10 +97,15 @@ def obj_func_spatial_entropy(individual: np.ndarray, pdi_function: str, image: n
 if __name__ == '__main__':
     # JUST FOR TESTING
     # simulate a population
-    population = np.array([[2.3 , 4.5], [1.4, -0.2]])
+    population = np.array([[2.3 , 4.5], [1.4, 2]])
+    # simulate an image reading one from assets
+    img = cv2.imread('./assets/kodim23.png', cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = img.astype(np.float64) / 255.0
+    # pass the parameters using kwargs
     params = {
-        'pdi_function': 'sigmoid', # sigmoid or clahe
-        'image': np.random.rand(400, 400)
+        'pdi_function': 'clahe', # sigmoid or clahe
+        'image': img
     }
     # evaluate the population
     aptitude = evaluate_population(population, obj_func_shannon_entropy, **params)
