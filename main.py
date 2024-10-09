@@ -8,25 +8,12 @@ img_max_height = 900
 # define the Digital Image Processing function to be used to transform the image
 dip_function = 'clahe' # 'sigmoid' or 'clahe'
 
-# define the limits dynamically
-limits = []
-if dip_function == 'sigmoid':
-    # limits 4 sigmoid function
-    limits = [[0, 1], [0, 10]]
-else:
-    # limits 4 clahe function
-    limits = [[1, 4], [1, 30]]
-    if 'bones' in img_path:
-        # new limits for bones images 2 get better results
-        limits = [[4, 11], [1, 50]]
-        
-
 # GA configuration
 ga_config = {
     'population_size': 150,
     'generations': 10,
     'variables': 2,
-    'limits': limits,
+    'limits': [],
     'sbx_prob': 0.8,
     'sbx_dispersion_param': 3,
     'mutation_probability_param': 0.7,
@@ -43,6 +30,21 @@ ga_config = {
 
 save_log = True
 show_image_result = True
+
+
+# define the limits dynamically
+limits = []
+if dip_function == 'sigmoid':
+    # limits 4 sigmoid function
+    limits = [[0, 1], [0, 10]]
+else:
+    # limits 4 clahe function
+    limits = [[1, 4], [1, 30]]
+    if 'bones' in img_path:
+        # new limits for bones images 2 get better results
+        limits = [[4, 11], [1, 50]]
+#assign the limits to the configuration        
+ga_config['limits'] = limits
 
 # ---------------------------------------
 # Show the configuration
